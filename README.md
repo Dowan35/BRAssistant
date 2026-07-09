@@ -309,3 +309,27 @@ Here are some possibilities:
 * **Pros:** 150$/month free tokens, with a mean request around 20k tokens, it would be 5k free requests/month (respect if you ever do 5k reviews). (see https://grok-api.apidog.io/free-credits-934025m0)
 * **Cons:** Need a 5$ initial investment, eligibility conditions, and is owned by Elon Musk.
 * **Estimated Price:** **~$0.025 per review** (2.5 cents). https://docs.x.ai/developers/models
+
+## 9. Troubleshooting
+
+Here are the common problems you can encounter :
+
+```bash
+elastic_transport.ConnectionError: Connection error caused by: ConnectionError(Connection error caused by: NewConnectionError(HTTPConnection(host='localhost', port=9200): Failed to establish a new connection: [Errno 111] Connection refused))
+```
+* **Solution:** Start the elasticsearch container with the command  `docker start elasticsearch`
+  <br><br>
+```bash
+Error : please provide a valid mail adress in .env file.`
+```
+* **Solution:** You need to add your mail adress in   `.env` file.
+  <br><br>
+```bash
+No patch found for Message-ID : ...
+Patchwork URL detected, retrieving patch data from API.
+Error: Failed to retrieve patch data.
+```
+* **Solution:** Provide a valid patch link from https://patchwork.ozlabs.org/project/buildroot, or a .patch file.
+  <br><br>
+
+  
