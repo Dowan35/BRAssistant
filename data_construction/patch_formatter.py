@@ -10,17 +10,9 @@ import time
 load_dotenv(find_dotenv())
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", ""))
-MODEL_ID='gemini-3.1-flash-lite-preview'
-thing=0
+MODEL_ID='gemini-3.5-flash-lite'
 
 MAX_RETRIES=5
-
-def mean_function(thing):
-    global client
-    if thing%2 == 0:
-        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", ""))
-    else:
-        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY_2", ""))
 
 def get_processed_ids(file_path):
     """Read the output file to collect already processed IDs."""
@@ -37,7 +29,6 @@ def get_processed_ids(file_path):
     return ids
 
 def synthesize_lessons(input_file="", output_path=""):
-    global thing
     
     if (os.path.isfile(output_path) == False):
         output_path = "ressources/buildroot_lessons.jsonl"
@@ -102,9 +93,6 @@ def synthesize_lessons(input_file="", output_path=""):
                     print(f"[{patch_id}] Synthesized - Pkg: {synthesis.get('package')}")
                     success = True
                     
-                    # Rotate API keys and add a short delay
-                    thing += 1
-                    mean_function(thing)
                     time.sleep(1) 
                     break 
                 

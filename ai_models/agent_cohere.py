@@ -7,14 +7,14 @@ from tenacity import retry, stop_after_attempt, wait_exponential
     stop=stop_after_attempt(5),
     before_sleep=lambda retry_state: print(f"Cohere API error, attempt {retry_state.attempt_number}... \n({retry_state.outcome.exception()})")
 )
-def generate_content_with_retry(client, model_id, system_instructions, user_prompt):
-    return client.chat(
+async def generate_content_with_retry(client, model_id, system_instructions, user_prompt, temp):
+    return await client.chat(
         model=model_id,
         messages=[
             {"role": "system", "content": system_instructions},
             {"role": "user", "content": user_prompt}
         ],
-        temperature=0.1
+        temperature=temp
     )
 
 def extract_text_from_cohere(response):
@@ -28,13 +28,14 @@ def extract_text_from_cohere(response):
                 full_text += block.text
     return full_text
 
-def run_review(model_id, system_instructions, user_prompt):
-    """Cohere specialist for code review."""
+async def run_review(model_id, system_instructions, user_prompt, temp):
+    """Cohere specialist for code review (Asynchronous)."""
     api_key = os.getenv("COHERE_API_KEY")
-    if not api_key: raise ValueError("COHERE_API_KEY missing from environment")
+    if not api_key: 
+        raise ValueError("COHERE_API_KEY missing from environment")
 
-    client = cohere.ClientV2(api_key=api_key)
-    response = generate_content_with_retry(client, model_id, system_instructions, user_prompt)
+    client = cohere.AsyncClientV2(api_key=api_key)
+    response = await generate_content_with_retry(client, model_id, system_instructions, user_prompt, temp)
 
     review_text = extract_text_from_cohere(response)
     

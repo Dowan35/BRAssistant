@@ -1,6 +1,8 @@
 elasticsearch<9.0.0
 sentence-transformers
 huggingface_hub
+python-magic
+flake8
 bs4
 python-dotenv
 asyncio

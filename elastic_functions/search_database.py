@@ -62,10 +62,14 @@ def search_history(embedder, es, patch_data, threshold=0.5):
 
 
 def search_manual(es, relevant_chapters: list):
-    """Search the manual based on intent and code."""
+    """Fetches the content of specified chapters from the Buildroot manual stored in Elasticsearch."""
 
     if not relevant_chapters:
             return []
+    
+    if isinstance(relevant_chapters, str):
+        relevant_chapters = [relevant_chapters]
+
     query = {
         "query": {
             "terms": {

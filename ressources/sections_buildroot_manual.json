@@ -11,20 +11,12 @@
         "title": "The genimage.cfg file",
         "section_id": "writing-genimage-cfg"
     },
-    "16.5": {
-        "title": "Support scripts (support/...)",
-        "section_id": "_support_scripts"
-    },
     "17": {
         "title": "Adding support for a particular board",
         "section_id": "adding-board-support"
     },
-    "18.1": {
-        "title": "Package directory",
-        "section_id": "_package_directory"
-    },
     "18.2": {
-        "title": "Config files (global rules)",
+        "title": "Config files (global rules Config.in and Config.in.host)",
         "section_id": "_config_files"
     },
     "18.4": {
@@ -132,7 +124,7 @@
         "section_id": "_patch_revision_changelog"
     },
     "23": {
-        "title": "DEVELOPERS file and get-developers",
+        "title": "DEVELOPERS file and get-developers (for new packages/new functionalities",
         "section_id": "DEVELOPERS"
     }
 }
