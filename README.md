@@ -337,4 +337,24 @@ Error: Failed to retrieve patch data.
 * **Solution:** Provide a valid patch link from https://patchwork.ozlabs.org/project/buildroot, or a .patch file.
   <br><br>
 
-  
+## 9. Troubleshooting
+
+Here are the common problems you can encounter :
+
+```bash
+elastic_transport.ConnectionError: Connection error caused by: ConnectionError(Connection error caused by: NewConnectionError(HTTPConnection(host='localhost', port=9200): Failed to establish a new connection: [Errno 111] Connection refused))
+```
+* **Solution:** Start the elasticsearch container with the command  `docker start elasticsearch`
+  <br><br>
+```bash
+Error : please provide a valid mail adress in .env file.`
+```
+* **Solution:** You need to add your mail adress in   `.env` file.
+  <br><br>
+```bash
+No patch found for Message-ID : ...
+Patchwork URL detected, retrieving patch data from API.
+Error: Failed to retrieve patch data.
+```
+* **Solution:** Provide a valid patch link from https://patchwork.ozlabs.org/project/buildroot, or a .patch file.
+  <br><br>
