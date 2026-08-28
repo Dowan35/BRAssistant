@@ -20,7 +20,7 @@ Ensure your host machine has the following prerequisites installed:
 * **Python 3.10** or higher
 * **Docker** & Docker Engine
 * `curl` (for database verification)
-
+* `libmagic` (sudo apt install libmagic1) for the Buildroot's check-package command
 
 
 ## 3. Technical Stack & Dependencies
@@ -32,9 +32,11 @@ The project relies on the core dependencies specified in `requirements.txt`:
 | `elasticsearch` (< 9.0.0) | Official client library for database interactions and vector storage. |
 | `sentence-transformers` | Generates text embeddings locally for semantic search. |
 | `huggingface_hub` | Manages download and caching of NLP models. |
+| `python-magic` | Required for Buildroot's check-package script execution. |
+| `flake8` | Python linter utilized by check-package. |
 | `bs4` (BeautifulSoup) | Handles HTML/XML log parsing and text extraction. |
 | `python-dotenv` | Loads configuration options seamlessly from `.env` files. |
-| `openrouter` / `google-genai` / ... | Interface tool for LLM inference APIs. |
+| `openai` | Standardized interface tool for LLM inference APIs (supports OpenRouter, Google, Cohere, etc.). |
 | `asyncio` / `aiohttp` | Core asynchronous engines for concurrent network and file operations. |
 | `tenacity` | Advanced retry handling for robust API calls and database synchronization. |
 
@@ -120,34 +122,38 @@ curl -s "http://localhost:9200/_cat/allocation?v"
 
       https://openrouter.ai/workspaces/default/keys (if using openrouter for patch reviews)
       
-   You will then create/modify a `.env` file in the root directory to store your API keys and configurations, here is an example configuration with multiple AI models ready to be tested :
+   You will then create/modify a `.env` file in the root directory to store your API keys and configurations, here is an example configuration with multiple AI models that I used for reviews (subject to change) :
 
    ```env
       MAIL_ADRESS="vacation@gmail.com"
 
-      HF_API_KEY="my_secret_key"
-      REVIEW_AI_PROVIDER="openrouter" # gemini, github_models, cohere, openrouter...
-      ROUTER_AI_PROVIDER="github_models" # gemini, gemini_lite, github_models, cohere,...
+      HF_API_KEY="your_hf_key"
+      HF_MODEL_ID="sentence-transformers/all-MiniLM-L6-v2"
 
-      OPENROUTER_MODEL_ID="deepseek/deepseek-v4-pro"
-      OPENROUTER_API_KEY="67"
+      # Available providers: gemini, cohere, openrouter, claude, b.ai
 
-      GITHUB_MODEL_ID="gpt-4o" # or Meta-Llama-3.1-405B-Instruct
-      GITHUB_API_KEY="too_expensive_to_be_shared"
+      # --- STAGE 1: Router
+      ROUTING_PROVIDER="openrouter"
+      ROUTING_MODEL="thinkingmachines/inkling:free"
 
-      GEMINI_MODEL_ID="gemini-3.5-flash"
-      GEMINI_API_KEY=""
+      # --- STAGE 2: Agents
+      AGENT_PROVIDER="openrouter"
+      AGENT_MODEL="minimax/minimax-m3:free"
 
-      COHERE_MODEL_ID="command-a-plus-05-2026"
-      COHERE_API_KEY=""
+      # --- STAGE 3: Judge
+      JUDGE_PROVIDER="openrouter"
+      JUDGE_MODEL="nvidia/nemotron-3-ultra-550b-a55b:free"
+
+      GEMINI_API_KEY="your_gemini_key"
+      OPENROUTER_API_KEY="your_openrouter_key"
    ```
 
    As you can see, you can setup different keys/model in the `.env` file, but you will have to choose which one to use for 
 
    - **vectorizing** : the only provider supported at the moment is Hugging Face. just put your key in `HF_API_KEY` if you want to add new data to the RAG database.
-   - **routing** :  currently the suppported models for routing are gemini, gemini_lite, github_models and cohere. Choose the provider (with the help of section "8. How to choose the AI Model"), and write it in the `ROUTER_AI_PROVIDER` variable. If you want to modify the specific model used for the routing agent, you will have to modify ai_agents/router.py
-   - **patch review** : same principle, but you can choose which model to use by modifying `<PROVIDER>_MODEL_ID` in the `.env`, and write the coresponding provider in `REVIEW_AI_PROVIDER` (available ones : openrouter, gemini, github_models, cohere).
-
+   - **routing (Stage 1)** : The router requires a fast model capable of strict JSON formatting to determine which agents to wake up. Set your choices in `ROUTING_PROVIDER` and `ROUTING_MODEL`.
+   - **patch review (Stage 2)** : This stage executes multiple specialized agents concurrently. It requires a model with strong reasoning and code analysis capabilities. Set your choices in `AGENT_PROVIDER` and `AGENT_MODEL`.
+   - **final judge (Stage 3)** : The judge acts as the final editor, resolving logical contradictions and formatting the email. It requires a model with excellent synthesis and formatting skills. Set your choices in `JUDGE_PROVIDER` and `JUDGE_MODEL`.
 
 4. **Environment Variables:**
 
@@ -158,7 +164,6 @@ curl -s "http://localhost:9200/_cat/allocation?v"
 
    (You can enhance the database by adding other files (without the 'reset'), but the format has to be respected.)
    ```
-
 
 
 ## 6. Usage
@@ -229,81 +234,81 @@ Reminder: to push new patches to the database, use `python3 elastic_functions/ve
 
 ## 8. How to choose the AI Model
 
+Because BRAssistant utilizes a three-stage multi-agent architecture, you can mix and match models based on the specific requirements of each stage. Set the models via the `.env` file configuration blocks.
+
 Currently, there are a few different models supported, and your choice will produce varied results.
-There are two types of models here: **"Reasoning"** models and **"Routing"** (Lite) models.
-* **Reasoning models** will have slower answer times but provide more in-depth suggestions.
-* **Routing models** can answer much faster, but are far less pertinent on complex tasks (they are ideal for extracting manual sections to provide context).
 
-To choose your model, edit the .env file, add your key and enter the model's vairant name.
-You cant choose a different model for routing and patch review, it's highly recommended btw.
+* **Stage 2 (Reasoning Agents)** requires models capable of deep code analysis and strict heuristic adherence.
+* **Stage 1 (Routing) & Stage 3 (Judge)** require high-speed JSON strictness and strong natural language synthesis, respectively.
 
-Here are the pros and cons for each of them to help you choose:
+Here are the pros and cons for the supported models to help you choose:
 
-### Reasoning Agents (Code Review)
+### Stage 2: Reasoning Agents (Code Review)
 
-**`gemini-3.5-flash` (Google)** 
-* **Pros:** Gives the most precise answers. Less prone to hallucinations.
-* **Cons:** Slowest answers on the free plan and "Best-effort" service; retries might be needed during high demand periods. Limited to 20 requests per day on the free plan.
+*Requires strong code analysis, logical deduction, and the ability to follow strict Buildroot heuristics.*
 
-**`deepseek/deepseek-v4-pro` (or openrouter/owl-alpha) (OpenRouter)** <-- recommended
-* **Pros:** Totally free API aggregator. Allows using large context windows (64k+ tokens) avoiding the strict limits of GitHub Models and support multiple models.
-* **Cons:** "Deepseek V4 free plan is not always available. Reliability and answer times highly depend on the underlying free providers' current load, and can give less detailed answers compared to gemini.
+**`minimax/minimax-m3:free` (OpenRouter)** <-- Recommended Free Tier
 
-**`gpt-4o` (via GitHub Models)**
-* **Pros:** Solid and detailed answers in general. Few hallucinations. Highly available with fast answer times.
-* **Cons:** Input context is strictly limited to 8k tokens (cannot be used on more complex patches with large RAG contexts).
+* **Pros:** Completely free API aggregator option. Handles large contexts well and provides strong reasoning capabilities necessary for deep code review.
+* **Cons:** Reliability and answer times highly depend on OpenRouter's free tier load and the model might not be free in few months.
 
-**`Meta-Llama-3.1-405B-Instruct` (via GitHub Models)**
-* **Pros:** Detailed answers in general and fast answer times.
-* **Cons:** More prone to hallucinations compared to GPT/Gemini. Input context limited to 8k tokens.
+**`gemini-3.(5,6,7,..)-flash` (Google)**
+
+* **Pros:** Gives highly precise answers and is less prone to hallucinations.
+* **Cons:** Slower answers on the free plan and "Best-effort" service; retries might be needed during high demand periods. Limited to 20 requests per day on the free plan.
 
 **`command-a-plus-05-2026` (Cohere)**
-* **Pros:** Canadian open-source project. Good answer times and high availability.
-* **Cons:** Lowest capacity for complex reasoning or using "expert intuition". Tends to provide the lowest number of suggestions in its answers.
 
+* **Pros:** Good answer times, open source and high availability.
+* **Cons:** Answers are very concise, limited, and not detailed enough. Lacks the capacity for complex reasoning and "expert intuition" required for deep patch analysis.
 
+### Stage 1: Routing & Stage 3: Judge
 
-### Routing Agents (Context Provider)
+*Requires fast execution and strict JSON adherence (Router), and strong natural language synthesis/deduplication (Judge).*
+
+**`thinkingmachines/inkling:free` (OpenRouter)** <-- Recommended for Stage 1 (Routing)
+
+* **Pros:** Fast and excellent at adhering strictly to JSON schemas, making it perfect for determining which agents to wake up based on patch content.
+* **Cons:** Availability can vary based on the free tier network load.
+
+**`nvidia/nemotron-3-ultra-550b-a55b:free` (OpenRouter)** <-- Recommended for Stage 3 (Judge)
+
+* **Pros:** Outstanding at synthesizing multiple agent reports, resolving logical contradictions, and enforcing strict formatting rules for the final `.eml` draft.
+* **Cons:** Can be slower than smaller models; dependent on OpenRouter's free tier load.
 
 **`llama-3.3-70b-versatile` (Groq)**
+
 * **Pros:** Very high speed (LPU hardware). Solid choice for fast JSON routing.
-* **Cons:** Extremely strict Tokens-Per-Minute (TPM) limits on the free tier (do not use for the Reasoning Agent).
+* **Cons:** Not the absolute best for complex logic, and possesses extremely strict Tokens-Per-Minute (TPM) limits on the free tier (do not use for the Reasoning Agents).
 
-**`gpt-4o-mini` (GitHub Models)**
-* **Pros:** Blazing fast answer time and excellent at enforcing JSON structures.
-* **Cons:** Subject to API rate limits (10-15 requests/min) on free plans.
+**`gemini-3.5-flash-lite` (Google AI Studio)**
 
-**`command-r7b-12-2024` (Cohere)**
-* **Pros:** Canadian open-source project. Good answer times and high availability.
-* **Cons:** Lower capacity for complex reasoning.
-
-**`gemini-3.1-flash-lite` (Google AI Studio)**
 * **Pros:** Fast answer time when available.
-* **Cons:** Subject to downtime during high demand on free plans.
+* **Cons:** Subject to downtime during high demand on free plans, 500 requests per day.
 
-### Miscellaneous (non-free alternatives)
+### Miscellaneous (Non-free alternatives)
 
-There is of course additional models available that would be interesting for this project but would need a financial investment.
-Even a very low budget can avoid strict rate limits, timeouts and unlocks the true potential of BRAssistant.
+There are, of course, additional models available that are highly recommended for this project if you have a financial budget. Even a very low budget avoids strict rate limits, eliminates timeouts, and unlocks the true potential of BRAssistant.
 
-Here are some possibilities:
-
-*Cost estimation baseline on 25/06/2026: A complex patch review with RAG injection averages **20,000 tokens** (19k input context + 1k output generation). API costs are subject to changes.*
+*Cost estimation baseline on 25/06/2026: A complex patch review with RAG injection averages **20,000 tokens** (19k input context + 1k output generation). API costs are subject to change.*
 
 **`deepseek-v4-pro (thinking mode)` (Official DeepSeek API)**
-* **Pros:** Absolute top-tier coding and reasoning capabilities, matching or beating GPT-4o. Massive 128k context window. Extremely aggressive pricing. 
-* **Cons:** Requires topping up a prepaid balance on their platform, and made in China.
-* **Estimated Price:** **~$0.009 per review** (Less than a cent!). https://api-docs.deepseek.com/quick_start/pricing
 
-**`anthropic.claude-opus-4-8` (Anthropic API)**
-* **Pros:** Widely considered the absolute undisputed king of code review and complex instruction following. Almost zero hallucinations. 200k context window.
-* **Cons:** Pricier than DeepSeek, though still cheap for a single review.
-* **Estimated Price:** **~$0.06 per review** (6 cents). https://platform.claude.com/docs/en/about-claude/pricing
+* **Pros:** Top-tier coding and reasoning capabilities, matching or beating industry standards. Massive 128k context window. Extremely aggressive pricing.
+* **Cons:** The free `b.ai` provider has significant limitations and severe delays. Using the official API requires topping up a prepaid balance on their platform.
+* **Estimated Price:** **~$0.009 per review** (Less than a cent!).
+
+**`anthropic.claude-3-5-sonnet` (Anthropic API)**
+
+* **Pros:** Widely considered the absolute undisputed king of code review and complex instruction following. Exceptional at synthesizing data for the Judge stage and zero-shot coding tasks for the Agents. Almost zero hallucinations.
+* **Cons:** Pricier than DeepSeek, though still highly cost-effective for a single review.
+* **Estimated Price:** **~$0.06 per review** (6 cents).
 
 **`gpt-4o` (Official OpenAI API)**
-* **Pros:** The industry standard. Extremely fast and reliable 128k context window without the GitHub Models free tier limitations.
-* **Cons:** Currently the most expensive.
-* **Estimated Price:** **~$0.0625 per review** (6.25 cents). https://openai.com/api/pricing/
+
+* **Pros:** The industry standard. Extremely fast and reliable 128k context window without restrictive rate limits.
+* **Cons:** Currently one of the most expensive options.
+* **Estimated Price:** **~$0.0625 per review** (6.25 cents).
 
 **`grok-4.3 (medium reasoning_effort)` (Groq)**
 * **Pros:** 150$/month free tokens, with a mean request around 20k tokens, it would be 5k free requests/month (respect if you ever do 5k reviews). (see https://grok-api.apidog.io/free-credits-934025m0)
