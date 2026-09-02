@@ -134,7 +134,7 @@ curl -s "http://localhost:9200/_cat/allocation?v"
 
       # --- STAGE 1: Router
       ROUTING_PROVIDER="openrouter"
-      ROUTING_MODEL="nvidia/nemotron-3.5-lightning:free"
+      ROUTING_MODEL="cohere/north-mini-code:free"
 
       # --- STAGE 2: Agents
       AGENT_PROVIDER="openrouter"
@@ -173,6 +173,8 @@ To launch the agent, please verify that your venv is activated, then in the root
 ```bash
 python3 ./BRAssistant.py 
 ```
+You can also add "-v" to enable the vebose mode for debugging (verify if data tools are working, content of the prompts,...).
+
 You will be asked to put the patch to review, you have 2 possible choices:
   - file : simply put the path of the .patch to analyze (ex: /home/user/Downloads/package-test.patch)
   - link : paste the patchwork url of the patch (ex: https://patchwork.buildroot.org/project/buildroot/patch/20260520092415.665898-1-giulio.benetti@benettiengineering.com/)
@@ -229,6 +231,7 @@ python3 ./data_construction/patch_formatter.py <input_file_path> <output_file_pa
 #example : python3 ./data_construction/patch_formatter.py output/patches.json
 #default output path is ressources/buildroot_lessons.jsonl
 ```
+To launch this script you will need a gemini API key, and an available model for the AI agent to summarize your list of patchs.
 
 Reminder: to push new patches to the database, use `python3 elastic_functions/vectorializer.py -p ressources/buildroot_lessons.jsonl`
 
