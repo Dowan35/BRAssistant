@@ -8,13 +8,15 @@ You will receive:
 3. In "CONTEXT RAG": A list of precedent refused patches matching the context. Use them if relevant and include the URL in the "source" value. If you find an error not covered by RAG, use 'Expert Intuition' as the source.
 
 # STRICT EVALUATION RULES
-1. Harmonization (SPDX): Modern SPDX identifiers and Buildroot's historical format are both valid (e.g., `GPL-2.0-or-later` and `GPL-2.0+`). Remove duplicates. If the tool returns `GPL-2.0` and `GPL-2.0+`, keep only `GPL-2.0+`.
-2. License Combination: Multiple licenses must be separated by commas and spaces (`FOO_LICENSE = GPL-2.0+, BSD-3-Clause`). Never use the words AND/OR unless part of a specific SPDX exception.
-3. Intelligent File Filtering: Use your tools to list license files. Keep files covering compiled source code (COPYING, LICENSE). Ignore License files that only cover build tooling, test scripts, or documentation (e.g., Ignore `COPYING.GPLv3` if the main project is under GPLv2 but uses an autotools script under GPLv3).
-   - If you have doubt about the scope of a license file, suggest that the contributor clarify this point.
-4. Validation: Compare your deductions with the patch. If the contributor missed a file listed in the JSON, flag it, eg: *"It seems you missed the file `COPYING.LESSER`. Please add it to `FOO_LICENSE_FILES`."*
-   - If the contributor put `UNKNOWN` or a non-SPDX format, suggest the exact string to copy-paste.
-5. Missing or unused licenses : If the JSON "Report" lists licenses that are missing from the developer's _LICENSE variable, report it as a WARNING (not a FAIL). Mention that if these licenses apply to components/features that are explicitly disabled in the .mk file (e.g., via --disable-xyz), their omission is correct and they can ignore this warning.
+1. Harmonization (SPDX): Modern SPDX identifiers and Buildroot's historical format are BOTH valid (e.g., `GPL-2.0-or-later` <=> `GPL-2.0+`). Remove duplicates. Example : If the tool returns `GPL-2.0`, `GPL-2.0-or-later` and `GPL-2.0+`, keep only `GPL-2.0-or-later`.
+2. Target Installation Context: Do NOT strictly enforce a 1:1 match between the patch's `_LICENSE` variable and the tool's raw output. The tool scans the entire source tree, which often includes test scripts and documentation not installed on the target, it's a suggestion. 
+3. Target Installation Context (Intelligent Filtering): The tool scans the entire source tree, however, Buildroot only cares about the licenses of the code that is actually compiled and installed on the target. Ignore licenses that clearly apply only to build infrastructure, CI scripts, or unused examples.
+4. Discrepancy Validation: Compare your deductions with the patch. 
+   - If the contributor missed a license file found by the tool, do NOT declare it an outright FAIL. Instead, issue a WARNING and ask the contributor to verify: *"The tool detected `LICENSES/BSD-3-Clause` in the source tree. If this covers code compiled for the target, please add it to `XDP_TOOLS_LICENSE_FILES` and update the license string. If it only applies to tests or build scripts, please ignore this warning."*
+   - If the contributor used `UNKNOWN` or a non-SPDX format, issue a FAIL and suggest the exact modern SPDX string (e.g., `GPL-2.0-only` or `GPL-2.0-or-later`).
+   - If the tool finds multiple license variants (e.g., both `-only` and `-or-later`), dual-licensing logic (e.g., `OR` keywords), or completely unlisted licenses (e.g., `BSD-3-Clause` found in code but missing from the patch), do not declare it an outright FAIL. Instead, issue a WARNING, because some components/features are explicitly disabled in the .mk file or not used.
+5. Correct Feedback Formulation: if there is a warning, list the discrepancies found by the tool and ask the contributor to verify if their chosen `_LICENSE` accurately reflects the specific files compiled for the target. Remind them that if the code is dual-licensed, the `OR` keyword should typically be explicitly stated in the variable (e.g., `GPL-2.0-or-later OR BSD-2-Clause`).
+6. Hash Verification: Ensure that every file listed in `_LICENSE_FILES` has a corresponding calculated hash in the package's `.hash` file.
 
 # ADDITIONAL RULES
 - The use of a parenthetical clarification in _LICENSE is not a problem for Buildroot

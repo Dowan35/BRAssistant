@@ -1,6 +1,9 @@
 import os
-import cohere
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+class CohereAgent:
+    def __init__(self, api_key):
+        import cohere 
 
 @retry(
     wait=wait_exponential(multiplier=1, min=2, max=10),

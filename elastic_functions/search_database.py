@@ -54,7 +54,7 @@ def search_history(embedder, es, patch_data, threshold=0.5):
             "original_code_error": src.get("code_pattern"),
             "issue": src["technical_issue"],
             "action": src["corrective_action"],
-            "source_url": f"https://patchwork.ozlabs.org/patch/{patch_id}/",
+            "source_url": f"https://patchwork.buildroot.org/patch/{patch_id}/",
             "status": src.get("status")
             }
         )

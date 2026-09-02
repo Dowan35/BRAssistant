@@ -3,7 +3,6 @@
 # Usage: python3 br_check_package.py <sandbox_path>
 
 import sys
-import subprocess
 import os
 import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

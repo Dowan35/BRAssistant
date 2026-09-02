@@ -134,7 +134,7 @@ curl -s "http://localhost:9200/_cat/allocation?v"
 
       # --- STAGE 1: Router
       ROUTING_PROVIDER="openrouter"
-      ROUTING_MODEL="thinkingmachines/inkling:free"
+      ROUTING_MODEL="nvidia/nemotron-3.5-lightning:free"
 
       # --- STAGE 2: Agents
       AGENT_PROVIDER="openrouter"
@@ -175,7 +175,7 @@ python3 ./BRAssistant.py
 ```
 You will be asked to put the patch to review, you have 2 possible choices:
   - file : simply put the path of the .patch to analyze (ex: /home/user/Downloads/package-test.patch)
-  - link : paste the patchwork url of the patch (ex: https://patchwork.ozlabs.org/project/buildroot/patch/20260520092415.665898-1-giulio.benetti@benettiengineering.com/)
+  - link : paste the patchwork url of the patch (ex: https://patchwork.buildroot.org/project/buildroot/patch/20260520092415.665898-1-giulio.benetti@benettiengineering.com/)
 
 You can also directly indicate the patch to analyze this way:
 
@@ -266,7 +266,7 @@ Here are the pros and cons for the supported models to help you choose:
 
 *Requires fast execution and strict JSON adherence (Router), and strong natural language synthesis/deduplication (Judge).*
 
-**`thinkingmachines/inkling:free` (OpenRouter)** <-- Recommended for Stage 1 (Routing)
+**`nvidia/nemotron-3.5-lightning:free` (OpenRouter)** <-- Recommended for Stage 1 (Routing)
 
 * **Pros:** Fast and excellent at adhering strictly to JSON schemas, making it perfect for determining which agents to wake up based on patch content.
 * **Cons:** Availability can vary based on the free tier network load.
@@ -334,7 +334,7 @@ No patch found for Message-ID : ...
 Patchwork URL detected, retrieving patch data from API.
 Error: Failed to retrieve patch data.
 ```
-* **Solution:** Provide a valid patch link from https://patchwork.ozlabs.org/project/buildroot, or a .patch file.
+* **Solution:** Provide a valid patch link from https://patchwork.buildroot.org/project/buildroot, or a .patch file.
   <br><br>
 
 ## 9. Troubleshooting
@@ -356,5 +356,5 @@ No patch found for Message-ID : ...
 Patchwork URL detected, retrieving patch data from API.
 Error: Failed to retrieve patch data.
 ```
-* **Solution:** Provide a valid patch link from https://patchwork.ozlabs.org/project/buildroot, or a .patch file.
+* **Solution:** Provide a valid patch link from https://patchwork.buildroot.org/project/buildroot, or a .patch file.
   <br><br>

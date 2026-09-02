@@ -8,8 +8,6 @@ import sys
 import re
 import json
 
-from pyparsing import line
-from sympy import content
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sandbox.sandbox_git_tool import run_command
 

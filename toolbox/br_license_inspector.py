@@ -117,7 +117,7 @@ def scan_license_files(build_dir):
 def extract_spdx_tokens(expression):
     """Split an SPDX expression into base tokens, ignoring operators."""
     # Split by spaces, parentheses, or SPDX operators
-    tokens = re.split(r'\s+|\(|\)', expression)
+    tokens = re.split(r'[\s\(\)]+', expression)
     keywords = {"AND", "OR", "WITH", ""}
     return [t for t in tokens if t not in keywords]
 
@@ -154,14 +154,20 @@ def scan_source_for_spdx(build_dir, valid_spdx_ids):
     if valid_spdx_ids:
         for expr in found_expressions:
             tokens = extract_spdx_tokens(expr)
+            is_valid_expr = True
+            
             for token in tokens:
-                # Remove '+' which implies "or later" in SPDX shorthand but might not be in the base DB list
                 base_token = token[:-1] if token.endswith('+') else token
                 
-                if base_token in valid_spdx_ids or token in valid_spdx_ids:
-                    validated_licenses.add(token)
+                if base_token in valid_spdx_ids or token in valid_spdx_ids or token.startswith("LicenseRef-"):
+                    pass # Token is valid
                 else:
                     unrecognized_licenses.add(token)
+                    is_valid_expr = False
+            
+            # If all base tokens in the expression are valid, add the FULL expression (e.g., "GPL-2.0 OR BSD-2-Clause")
+            if is_valid_expr:
+                validated_licenses.add(expr)
     else:
         # Fallback if offline
         validated_licenses = set(extract_spdx_tokens(" ".join(found_expressions)))

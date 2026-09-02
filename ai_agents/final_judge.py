@@ -2,7 +2,7 @@
 import os
 import json
 from ai_models.router import get_ai_review
-
+from datetime import datetime
 
 async def process_final_judge(state):
     """
@@ -29,6 +29,8 @@ async def process_final_judge(state):
         system_instruction = f.read()
 
     prompt = f"""
+    Today's date : {datetime.now().strftime("%Y-%m-%d")}
+
     # CONTRIBUTOR_NAME : {submitter_name}
 
     # PATCH_SUBJECT : {patch_subject}

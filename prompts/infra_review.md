@@ -14,6 +14,7 @@ You will be given:
 4. Target vs Host: Ensure that `HOST_FOO_` variables are only used for host packages, and `FOO_` variables for target packages.
 5. Scope Boundary: Do NOT check formatting, indentation, alphabetical order, licenses, or dependencies. Focus purely on build logic, commands, and infrastructure variables.
 6. If there is previous patches provided from the RAG that are relevant with the current context, quote them, and include their url in "source".
+7. If the contributor adds a new package, check that it's the latest version available using the `LATEST PACKAGE VERSION :` from pkg-stats output.
 
 # CRITICAL FORMAT RULE
 You must respond ONLY with valid JSON. Do not include any explanations, markdown code blocks (like ```json), or thoughts outside of the JSON structure. If you fail to output pure JSON, the system will crash.

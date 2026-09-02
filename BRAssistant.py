@@ -1,6 +1,6 @@
 import asyncio
 from email.message import EmailMessage
-import json
+import re
 import sys
 import os
 from dotenv import load_dotenv

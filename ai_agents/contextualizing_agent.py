@@ -48,8 +48,8 @@ async def get_relevant_chapters(git_diff: str) -> list:
     prompt = f"Here is the patch to analyze:\n{git_diff} \n\nAnd here are the available manual chapters:\n{available_chapters_string}"
 
     try:
-        provider = os.getenv("ROUTER_PROVIDER", "").lower()
-        model_id = os.getenv("ROUTER_MODEL", "")
+        provider = os.getenv("ROUTING_PROVIDER", "").lower()
+        model_id = os.getenv("ROUTING_MODEL", "")
 
         raw_response_text, token_usage = await get_ai_review(
             system_instruction, 

@@ -1,5 +1,4 @@
 import os
-from anthropic import AsyncAnthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 @retry(stop=stop_after_attempt(4), wait=wait_exponential(multiplier=2, min=2, max=15))
@@ -24,6 +23,7 @@ async def _call_api_with_retry(client, model_id, system_instructions, user_promp
 
 async def run_review(model_id, system_instructions, user_prompt, temp):
     """Anthropic (Claude) specialist for code review (Asynchronous with robust retries)."""
+    from anthropic import AsyncAnthropic
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key: 
         raise ValueError("ANTHROPIC_API_KEY missing from environment")

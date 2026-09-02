@@ -1,6 +1,5 @@
 import requests
 import json
-import os
 
 WEBHOOK_URL="https://hook.eu1.make.com/h4c3ca3dnz8byg5rxcm24nu5udtddvwt"
 

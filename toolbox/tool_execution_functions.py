@@ -62,4 +62,4 @@ async def execute_tool_async(script_name, args):
             return {"error": stderr.decode()}
     except json.JSONDecodeError:
         print(f"Error: {script_name} did not return valid JSON. Raw output: {stdout.decode().strip()}")
-        return {"error": "Invalid JSON output"}
+        return {"error": f"Invalid JSON output : {stdout.decode().strip()}"}

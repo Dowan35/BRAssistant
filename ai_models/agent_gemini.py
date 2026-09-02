@@ -1,11 +1,11 @@
 import os
-from google import genai
-from google.genai import types
-import google.genai.errors as errors
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
+def is_gemini_server_error(exc):
+    return type(exc).__name__ == "ServerError"
+
 @retry(
-    retry=retry_if_exception_type(errors.ServerError),
+    retry=retry_if_exception_type(is_gemini_server_error),
     wait=wait_exponential(multiplier=1, min=2, max=10),
     stop=stop_after_attempt(5),
     before_sleep=lambda retry_state: print(f"    [~] Gemini server error, attempt {retry_state.attempt_number}... \n({retry_state.outcome.exception()})")
@@ -21,6 +21,9 @@ async def run_review(model_id, system_instructions, user_prompt, temp):
     """
     Generate review using Gemini model (Asynchronous).
     """
+    from google import genai
+    from google.genai import types
+    
     api_key = os.getenv("GEMINI_API_KEY", "")
     if not api_key:
         raise ValueError("GEMINI_API_KEY missing from environment")

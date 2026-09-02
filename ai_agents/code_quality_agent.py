@@ -1,8 +1,6 @@
 import os
-import asyncio
 import json
 from ai_models.router import get_ai_review 
-from elastic_functions.search_database import search_manual
 from toolbox.tool_execution_functions import execute_tool
 
 async def process_code_review(state):

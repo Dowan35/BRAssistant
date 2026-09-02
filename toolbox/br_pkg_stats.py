@@ -1,10 +1,12 @@
 import asyncio
 import aiohttp
 import sys
+import json
 
 HTTP_HEADERS = {'User-Agent': 'buildroot.org pkg-stats'}
 
 async def get_package_infos(pkg_name):
+    """Fetches the latest version of a package from release-monitoring.org using two methods: by distro and by guessing the project name."""
     async with aiohttp.ClientSession(headers=HTTP_HEADERS) as session:
         # 1. Attempt by Distro (Buildroot)
         url_distro = f"https://release-monitoring.org/api/project/Buildroot/{pkg_name}"
@@ -38,20 +40,23 @@ async def get_package_infos(pkg_name):
 
     return None
 
-# Example usage
-async def main():
-    if len(sys.argv) > 1:
-        package = sys.argv[1]
-    
-        result = await get_package_infos(package)
-        
-        if result:
-            print(f"Package: {package}")
-            print(f"Latest version: {result['version']}")
-            print(f"Project ID: {result['id']}")
-            print(f"Found via: {result['method']}")
-        else:
-            print("Version not found.")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "Usage: python3 br_pkg_stats.py <package_name>"}))
+        sys.exit(1)
+
+    package = sys.argv[1]
+
+    try:
+        result = asyncio.run(get_package_infos(package))
+    except Exception as e:
+        print(json.dumps({"status": "error", "message": str(e)}))
+        exit(1)
+
+    if result:
+        print(json.dumps({
+            "version": result["version"],
+        }))
+    else:
+        print("Version not found.")

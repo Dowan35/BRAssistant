@@ -3453,7 +3453,7 @@ information.</p><p>When added to the individual commits, this changelog is added
 editing the commit message. Below the <code class="literal">Signed-off-by</code> section, add
 <code class="literal">---</code> and your changelog.</p><p>Although the changelog will be visible for the reviewers in the mail
 thread, as well as in
-<a class="ulink" href="https://patchwork.ozlabs.org/project/buildroot/list/" target="_top">patchwork</a>, <code class="literal">git</code>
+<a class="ulink" href="https://patchwork.buildroot.org/project/buildroot/list/" target="_top">patchwork</a>, <code class="literal">git</code>
 will automatically ignores lines below <code class="literal">---</code> when the patch will be
 merged. This is the intended behavior: the changelog is not meant to
 be preserved forever in the <code class="literal">git</code> history of the project.</p><p>Hereafter the recommended layout:</p><pre class="screen">Patch title: short explanation, max 72 chars
@@ -3484,17 +3484,17 @@ equal to two (i.e. "PATCH v2", "PATCH v3" …).</p><p>This can be easily handled
     -M -s -o outgoing origin/master</pre><p>Since git version 1.8.1, you can also use <code class="literal">-v &lt;n&gt;</code> (where &lt;n&gt; is the
 version number):</p><pre class="screen">$ git format-patch -v4 -M -s -o outgoing origin/master</pre><p>When you provide a new version of a patch, please mark the old one as
 superseded in
-<a class="ulink" href="https://patchwork.ozlabs.org/project/buildroot/list/" target="_top">patchwork</a>. You
+<a class="ulink" href="https://patchwork.buildroot.org/project/buildroot/list/" target="_top">patchwork</a>. You
 need to create an account on
-<a class="ulink" href="https://patchwork.ozlabs.org/project/buildroot/list/" target="_top">patchwork</a> to be
+<a class="ulink" href="https://patchwork.buildroot.org/project/buildroot/list/" target="_top">patchwork</a> to be
 able to modify the status of your patches. Note that you can only change
 the status of patches you submitted yourself, which means the email
 address you register in
-<a class="ulink" href="https://patchwork.ozlabs.org/project/buildroot/list/" target="_top">patchwork</a> should
+<a class="ulink" href="https://patchwork.buildroot.org/project/buildroot/list/" target="_top">patchwork</a> should
 match the one you use for sending patches to the mailing list.</p><p>You can also add the <code class="literal">--in-reply-to=&lt;message-id&gt;</code> option when
 submitting a patch to the mailing list. The id of the mail to reply to
 can be found under the "Message Id" tag on
-<a class="ulink" href="https://patchwork.ozlabs.org/project/buildroot/list/" target="_top">patchwork</a>. The
+<a class="ulink" href="https://patchwork.buildroot.org/project/buildroot/list/" target="_top">patchwork</a>. The
 advantage of <span class="strong"><strong>in-reply-to</strong></span> is that patchwork will automatically mark
 the previous version of the patch as superseded.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="reporting-bugs"></a>22.6.&nbsp;Reporting issues/bugs or getting help</h2></div></div></div><p>Before reporting any issue, please check in
 <a class="link" href="#community-resources" title="Chapter&nbsp;5.&nbsp;Community resources">the mailing list archive</a> whether someone has

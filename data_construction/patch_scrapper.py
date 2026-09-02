@@ -4,7 +4,7 @@ import time
 import json
 import sys
 
-BASE_API = "https://patchwork.ozlabs.org/api/1.2"
+BASE_API = "https://patchwork.buildroot.org/api/1.2"
 PROJECT_ID = 27
 
 state_dict = {

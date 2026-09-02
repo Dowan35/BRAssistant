@@ -19,7 +19,7 @@ async def get_ai_review(system_instructions, user_prompt, temp=0.1, provider_ove
         print(user_prompt)
         print(f"\033[96m{'='*55}\033[0m\n")
 
-    provider = provider_override or os.getenv("DEFAULT_AI_PROVIDER", "gemini").lower()
+    provider = provider_override or os.getenv("DEFAULT_AI_PROVIDER", "").lower()
     
     if provider == "gemini":
         model_id = model_override or "gemini-3.5-flash"

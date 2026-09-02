@@ -1,4 +1,3 @@
-import re
 from turtle import title
 
 def is_package(modified_files):

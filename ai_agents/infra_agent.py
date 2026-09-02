@@ -1,12 +1,13 @@
 import os
 import json
-from ai_models.router import get_ai_review 
+from ai_models.router import get_ai_review
+from toolbox.tool_execution_functions import execute_tool 
 
 async def process_infra_review(state):
     """
     Full pipeline for the Infrastructure theme (get the diff, rag infos, result of the tools and prompt).
     """
-
+    package_name = state["patch_info"].get("name", "")
     subject = state["patch_info"].get("subject", "")
     diff = state["patch_info"].get("diff", "")
     description = state["patch_info"].get("full_discussion", "")
@@ -15,8 +16,11 @@ async def process_infra_review(state):
         rag_context_formatted = "\n\n".join([f"CASE {i+1}:\n{case}" for i, case in enumerate(rag_context)])
     else:
         rag_context_formatted = "No precedent rejected patches found."
-    
-    # Prepare the prompts
+
+    # 1. Execute the local tool
+    tool_data = execute_tool("br_pkg_stats.py", [package_name])
+
+    # 2. Prepare the prompts
     system_instruction_path = os.path.join("prompts", "license_review.md")
     with open(system_instruction_path, "r") as f:
         system_instruction = f.read()
@@ -30,6 +34,9 @@ async def process_infra_review(state):
     # DIFF :
     {diff}
     
+    # TOOL OUTPUT (LATEST PACKAGE VERSION) :
+    {json.dumps(tool_data, indent=2)}
+
     # CONTEXT RAG (precedent rejected patches):
     {rag_context_formatted}
     """
