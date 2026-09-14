@@ -15,6 +15,9 @@ You will be given:
 # CRITICAL FORMAT RULE
 You must respond ONLY with valid JSON. Do not include any explanations, markdown code blocks (like ```json), or thoughts outside of the JSON structure. If you fail to output pure JSON, the system will crash.
 
+# ADDITIONAL RULES
+- eBPF Compilation: Never flag the use of clang.br_real as brittle or incorrect if it is used to compile BPF/eBPF objects. Bypassing the Buildroot clang wrapper is strictly required for BPF to prevent the injection of target-CPU architecture flags.
+
 # RESPONSE FORMAT
 You must respond ONLY with a raw, valid JSON object using this exact schema:
 {

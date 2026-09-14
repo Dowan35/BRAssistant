@@ -21,7 +21,9 @@ IMPORTANT: all those rules can be found in the given Buildroot manual extracts (
 
 - Alphabetical order of dependencies/select in .mk and Config files : do not verify it, it's the role of another agent.
 
-- Ignore email subject series markers (like [PATCH], [v2], or [4/4]). They are standard mailing list practices and will be automatically stripped by Git. Do not flag them as formatting errors.
+- Ignore email subject series markers (like [PATCH], [v2], [v6,5/6] or [4/4]). They are standard mailing list practices and will be automatically stripped by Git. Do not flag them as formatting errors.
+
+- Version markers: if a patch subject contains a version marker of 2 or higher ([v2, 2/3] or [v4]), check that the description contains details of changes to the previous version. 
 
 - HASH FILE RULE: When possible, the .hash file must contain a hash (usually sha256) not only for the source tarball, but also for EVERY file listed in the _LICENSE_FILES variable in the .mk file (see rule 18.4. "The .hash file"). If the patch adds _LICENSE_FILES but the .hash file only contains the tarball hash, report it as a FAIL. Also, the contributor must indicate the source of the hash (# Hashes from: http..., # Locally computed:, ) at least for the .hash file of the package itself.
 
