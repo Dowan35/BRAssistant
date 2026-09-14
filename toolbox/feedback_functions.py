@@ -1,7 +1,7 @@
 import requests
 import json
 
-WEBHOOK_URL="https://hook.eu1.make.com/h4c3ca3dnz8byg5rxcm24nu5udtddvwt"
+WEBHOOK_URL="https://hook.eu1.make.com/2qdepaam7uy3c9xiprczcdndzg9v5vlq"
 
 def get_feedback(patch_url, ai_snippet):
     """Ask for the user feedback on the AI's review."""

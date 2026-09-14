@@ -4,6 +4,8 @@ import sys
 import json
 import re
 from ai_models.router import get_ai_review
+import json
+import logging
 
 parent_dir = pathlib.Path(__file__).parent.resolve()
 MAPPING_FILE = parent_dir.parent / 'ressources' / 'sections_buildroot_manual.json'
@@ -24,9 +26,40 @@ def extract_json_array(text):
     
     match = re.search(r'\[\s*".*?\s*\]', text, re.DOTALL)
     if match:
-        return json.loads(match.group(0))
+        return match.group(0)
     
-    return json.loads(text)
+    return text
+
+def parse_and_validate_chapters(raw_llm_output: str) -> list:
+    """
+    Extracts and validates the list of chapters returned by the LLM.
+    If the model fails, returns a safety fallback list.
+    """
+    clean_output = raw_llm_output.strip().replace("'", '"')
+    if clean_output.startswith("```json"):
+        clean_output = clean_output.replace("```json", "").replace("```", "").strip()
+
+    try:
+        data = json.loads(clean_output)
+        if isinstance(data, dict):
+            logging.warning(f"The LLM returned a dictionary instead of a list. Content: {data}")
+            # Trigger the safety fallback
+            return ["22.5.1"] 
+        
+        if not isinstance(data, list):
+            logging.warning("The returned format is not a list.")
+            return ["22.5.1"]
+            
+        chapters = [str(item) for item in data]
+        
+        if "22.5.1" not in chapters:
+            chapters.append("22.5.1")
+            
+        return chapters
+    except json.JSONDecodeError as e:
+        logging.error(f"The LLM generated invalid JSON: {raw_llm_output}\nError: {e}")
+        return ["22.5.1"]
+
 
 async def get_relevant_chapters(git_diff: str) -> list:
     """
@@ -59,7 +92,9 @@ async def get_relevant_chapters(git_diff: str) -> list:
             model_override=model_id
         )
         chapters_list = extract_json_array(raw_response_text)
+        chapters_list = parse_and_validate_chapters(chapters_list)
         return chapters_list, token_usage
+    
     except Exception as e:
         print(f"Routing agent failed after retries or JSON parsing error: {e}")
         return ["22.5.1", "23"]

@@ -41,3 +41,4 @@ You must respond ONLY with a raw, valid JSON object using this exact schema:
 # ADDITIONAL RULES
 - KERNEL HEURISTIC: If a package contains depends on BR2_LINUX_KERNEL, you must actively question it. Ask the developer if the package genuinely builds kernel modules, because pure userspace tools should not depend on the Linux kernel. Report this as a WARNING.
 - Never flag select BR2_PACKAGE_BUSYBOX_SHOW_OTHERS as unnecessary. It is strictly required when selecting packages that overlap with Busybox applets (like bash, coreutils, etc.) to satisfy Kconfig dependencies.
+- HOST DEPENDENCIES RULE: In Buildroot, host tools required to build a target package (e.g., `host-nim`, `host-pkgconf`) MUST be listed in the standard `<PKG>_DEPENDENCIES` variable alongside target dependencies. Do NEVER suggest moving them to `HOST_DEPENDENCIES` or `<PKG>_HOST_DEPENDENCIES`. Mixing host and target packages in `<PKG>_DEPENDENCIES` is the correct and expected behavior.

@@ -59,4 +59,6 @@ if __name__ == "__main__":
             "version": result["version"],
         }))
     else:
-        print("Version not found.")
+        print(json.dumps({
+            "version": "Version not found.",
+        }))
